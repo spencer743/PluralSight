@@ -9,5 +9,6 @@ namespace FriendOrganizer.Ui.Data
         Task<List<Friend>> GetAllAsync();
 
         Task<Friend> GetByIDAsync(int friendId);
+        Task SaveAsync(Friend friend);
     }
 }
