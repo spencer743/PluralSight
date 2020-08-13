@@ -1,6 +1,7 @@
 ﻿using FriendOrganizer.Model;
 using FriendOrganizer.Ui.Data;
 using FriendOrganizer.Ui.Event;
+using FriendOrganizer.Ui.Wrapper;
 using Prism.Commands;
 using Prism.Events;
 using System;
@@ -16,7 +17,7 @@ namespace FriendOrganizer.Ui.ViewModel
     {
         private readonly IFriendDataService _dataService;
         private readonly IEventAggregator _eventAggregator;
-        private Friend _friend;
+        private FriendWrapper _friend;
 
         public FriendDetailViewModel(IFriendDataService dataService,
             IEventAggregator eventAggregator)
@@ -29,9 +30,26 @@ namespace FriendOrganizer.Ui.ViewModel
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
         }
 
+        public FriendWrapper Friend
+        {
+            get { return _friend; }
+            private set
+            {
+                _friend = value;
+                OnPropertyChanged();
+            }
+        }
+        public async Task LoadAsync(int friendId)
+        {
+            var friend = await _dataService.GetByIDAsync(friendId);
+            Friend = new FriendWrapper(friend);
+
+        }
+
+        public ICommand SaveCommand { get; }
         private async void OnSaveExecute()
         {
-           await _dataService.SaveAsync(Friend);
+           await _dataService.SaveAsync(Friend.Model);
             _eventAggregator.GetEvent<AfterFriendSavedEvent>().Publish(
                 new AfterFriendSavedEventArgs
                 {
@@ -51,21 +69,6 @@ namespace FriendOrganizer.Ui.ViewModel
             await LoadAsync(friendId);
         }
 
-        public Friend Friend
-        {
-            get { return _friend; }
-            private set
-            {
-                _friend = value;
-                OnPropertyChanged();
-            }
-        }
-        public async Task LoadAsync(int friendId)
-        {
-            Friend = await _dataService.GetByIDAsync(friendId);
 
-        }
-
-        public ICommand SaveCommand { get;  }
     }
 }
