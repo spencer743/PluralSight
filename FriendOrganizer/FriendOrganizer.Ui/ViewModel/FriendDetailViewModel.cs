@@ -43,6 +43,15 @@ namespace FriendOrganizer.Ui.ViewModel
         {
             var friend = await _dataService.GetByIDAsync(friendId);
             Friend = new FriendWrapper(friend);
+            Friend.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(Friend.HasErrors))
+                {
+                    ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
+                }
+            };
+
+            ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
 
         }
 
@@ -60,8 +69,8 @@ namespace FriendOrganizer.Ui.ViewModel
 
         private bool OnSaveCanExecute()
         {
-            // TODO: Check if friend is valid
-            return true;
+            // TODO: Check in additions if friend has changed
+            return Friend != null && !Friend.HasErrors;
         }
 
         private async void OnOpenFriendDetailView(int friendId)
