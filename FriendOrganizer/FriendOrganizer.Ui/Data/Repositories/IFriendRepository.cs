@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace FriendOrganizer.Ui.Data
+namespace FriendOrganizer.Ui.Data.Repositories
 {
-    public interface IFriendDataService
+    public interface IFriendRepository
     {
         Task<List<Friend>> GetAllAsync();
 
         Task<Friend> GetByIDAsync(int friendId);
-        Task SaveAsync(Friend friend);
+        Task SaveAsync();
     }
 }

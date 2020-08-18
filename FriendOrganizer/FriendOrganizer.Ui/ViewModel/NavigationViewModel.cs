@@ -1,4 +1,5 @@
 ﻿using FriendOrganizer.Ui.Data;
+using FriendOrganizer.Ui.Data.Lookups;
 using FriendOrganizer.Ui.Event;
 using Prism.Events;
 using System;

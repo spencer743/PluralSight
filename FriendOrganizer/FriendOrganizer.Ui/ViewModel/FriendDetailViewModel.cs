@@ -1,5 +1,6 @@
 ﻿using FriendOrganizer.Model;
 using FriendOrganizer.Ui.Data;
+using FriendOrganizer.Ui.Data.Repositories;
 using FriendOrganizer.Ui.Event;
 using FriendOrganizer.Ui.Wrapper;
 using Prism.Commands;
@@ -15,17 +16,16 @@ namespace FriendOrganizer.Ui.ViewModel
 {
     public class FriendDetailViewModel : ViewModelBase, IFriendDetailViewModel
     {
-        private readonly IFriendDataService _dataService;
+        private readonly IFriendRepository _friendRepository;
         private readonly IEventAggregator _eventAggregator;
         private FriendWrapper _friend;
 
-        public FriendDetailViewModel(IFriendDataService dataService,
+        public FriendDetailViewModel(IFriendRepository friendRepository,
             IEventAggregator eventAggregator)
         {
-            _dataService = dataService;
+            _friendRepository = friendRepository;
             _eventAggregator = eventAggregator;
-            _eventAggregator.GetEvent<OpenFriendDetailViewEvent>()
-                .Subscribe(OnOpenFriendDetailView);
+
 
             SaveCommand = new DelegateCommand(OnSaveExecute, OnSaveCanExecute);
         }
@@ -41,7 +41,7 @@ namespace FriendOrganizer.Ui.ViewModel
         }
         public async Task LoadAsync(int friendId)
         {
-            var friend = await _dataService.GetByIDAsync(friendId);
+            var friend = await _friendRepository.GetByIDAsync(friendId);
             Friend = new FriendWrapper(friend);
             Friend.PropertyChanged += (s, e) =>
             {
@@ -58,7 +58,7 @@ namespace FriendOrganizer.Ui.ViewModel
         public ICommand SaveCommand { get; }
         private async void OnSaveExecute()
         {
-           await _dataService.SaveAsync(Friend.Model);
+           await _friendRepository.SaveAsync();
             _eventAggregator.GetEvent<AfterFriendSavedEvent>().Publish(
                 new AfterFriendSavedEventArgs
                 {
@@ -73,10 +73,7 @@ namespace FriendOrganizer.Ui.ViewModel
             return Friend != null && !Friend.HasErrors;
         }
 
-        private async void OnOpenFriendDetailView(int friendId)
-        {
-            await LoadAsync(friendId);
-        }
+
 
 
     }
