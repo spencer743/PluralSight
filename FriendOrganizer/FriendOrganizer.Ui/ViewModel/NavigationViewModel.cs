@@ -15,7 +15,6 @@ namespace FriendOrganizer.Ui.ViewModel
     {
         private readonly IFriendLookupDataService _friendLookupDataService;
         private readonly IEventAggregator _eventAggregator;
-        private NavigationItemViewModel _selectedFriend;
 
         public NavigationViewModel(IFriendLookupDataService friendLookupDataService,
             IEventAggregator eventAggregator)
@@ -41,26 +40,12 @@ namespace FriendOrganizer.Ui.ViewModel
             Friends.Clear();
             foreach (var item in lookup)
             {
-                Friends.Add(new NavigationItemViewModel(item.Id,item.DisplayMember));
+                Friends.Add(new NavigationItemViewModel(item.Id,item.DisplayMember, 
+                    _eventAggregator));
             }
         }
 
         
-
-        public NavigationItemViewModel SelectedFriend
-        {
-            get { return _selectedFriend; }
-            set
-            {
-                _selectedFriend = value;
-                OnPropertyChanged();
-                if (_selectedFriend != null)
-                {
-                    _eventAggregator.GetEvent<OpenFriendDetailViewEvent>()
-                        .Publish(_selectedFriend.Id);
-                }
-            }
-        }
 
     }
 }
