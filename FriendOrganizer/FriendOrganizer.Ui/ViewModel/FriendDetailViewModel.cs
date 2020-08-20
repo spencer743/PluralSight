@@ -19,6 +19,7 @@ namespace FriendOrganizer.Ui.ViewModel
         private readonly IFriendRepository _friendRepository;
         private readonly IEventAggregator _eventAggregator;
         private FriendWrapper _friend;
+        private bool _hasChanges;
 
         public FriendDetailViewModel(IFriendRepository friendRepository,
             IEventAggregator eventAggregator)
@@ -39,12 +40,33 @@ namespace FriendOrganizer.Ui.ViewModel
                 OnPropertyChanged();
             }
         }
+
+
+        public bool HasChanges
+        {
+            get { return _hasChanges; }
+            set
+            {
+
+                if (_hasChanges != value)
+                {
+                    _hasChanges = value;
+                    OnPropertyChanged();
+                    ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged(); 
+                }
+            }
+        }
+
         public async Task LoadAsync(int friendId)
         {
             var friend = await _friendRepository.GetByIDAsync(friendId);
             Friend = new FriendWrapper(friend);
             Friend.PropertyChanged += (s, e) =>
             {
+                if (!HasChanges)
+                {
+                    HasChanges = _friendRepository.HasChanges();
+                }
                 if (e.PropertyName == nameof(Friend.HasErrors))
                 {
                     ((DelegateCommand)SaveCommand).RaiseCanExecuteChanged();
@@ -58,7 +80,8 @@ namespace FriendOrganizer.Ui.ViewModel
         public ICommand SaveCommand { get; }
         private async void OnSaveExecute()
         {
-           await _friendRepository.SaveAsync();
+            await _friendRepository.SaveAsync();
+            HasChanges = _friendRepository.HasChanges();
             _eventAggregator.GetEvent<AfterFriendSavedEvent>().Publish(
                 new AfterFriendSavedEventArgs
                 {
@@ -69,8 +92,7 @@ namespace FriendOrganizer.Ui.ViewModel
 
         private bool OnSaveCanExecute()
         {
-            // TODO: Check in additions if friend has changed
-            return Friend != null && !Friend.HasErrors;
+            return Friend != null && !Friend.HasErrors && HasChanges;
         }
 
 
