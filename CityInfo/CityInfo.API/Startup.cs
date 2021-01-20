@@ -16,6 +16,9 @@ namespace CityInfo.API
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.AddMvc(); // Use the below 5.0 uses endpoint routing doing this to follow demo
+            services.AddMvc(options => options.EnableEndpointRouting = false);
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -30,15 +33,18 @@ namespace CityInfo.API
                 app.UseExceptionHandler();
             }
 
-            app.UseRouting();
+            app.UseMvc();
+            
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapGet("/", async  context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
-            });
+            //app.UseRouting();
+
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapGet("/", async  context =>
+            //    {
+            //        await context.Response.WriteAsync("Hello World!");
+            //    });
+            //});
         }
     }
 }
